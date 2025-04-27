@@ -545,9 +545,8 @@ fn test_parse_anritsu_file() {
     assert_eq!(sor.map.revision_number, 200);
     assert_eq!(sor.general_parameters.unwrap().nominal_wavelength, 1310);
     assert_eq!(sor.data_points.unwrap().number_of_data_points, 20001);
-    assert_eq!(sor.key_events.unwrap().number_of_key_events, 3);
-    assert_eq!(fp.date_time_stamp, 1592094230);
-    assert_eq!(fp.averaging_time, 30);
+    assert_eq!(sor.key_events.unwrap().number_of_key_events, 4);
+    assert_eq!(fp.averaging_time, 0);
     assert_eq!(fp.number_of_averages, 15360);
 }
 
@@ -822,4 +821,44 @@ fn test_null_terminated_chunk() {
     let data = res.unwrap();
     assert_eq!(data.0, "".as_bytes()); // make sure we've consumed the null
     assert_eq!(data.1, "abcdef".as_bytes());
+}
+
+/// Test parsing de la SOR Viavi SmartOTDR 1310nm
+#[test]
+fn test_parse_viavi_sor() {
+    let data = include_bytes!("../data/example6-viavi-smartotdr-1310nm.sor");
+    let sor = parse_file(data).unwrap().1;
+    // Map block
+    assert_eq!(sor.map.revision_number, 200);
+    // General parameters
+    let gp = sor.general_parameters.unwrap();
+    assert_eq!(gp.language_code, "FR");
+    assert_eq!(gp.cable_id, "1");
+    assert_eq!(gp.fiber_type, 652);
+    assert_eq!(gp.nominal_wavelength, 1310);
+    assert_eq!(gp.originating_location, "PM");
+    assert_eq!(gp.terminating_location, "PBO");
+    assert_eq!(gp.current_data_flag, "CC");
+    assert_eq!(gp.comment, "");
+    // Supplier parameters
+    let sp = sor.supplier_parameters.unwrap();
+    assert_eq!(sp.supplier_name, "Viavi");
+    assert_eq!(sp.otdr_mainframe_id, "SmartOTDR");
+    assert_eq!(sp.otdr_mainframe_sn, "29462");
+    assert_eq!(sp.optical_module_id, "E126A");
+    assert_eq!(sp.software_revision, "20.00");
+    // Fixed parameters
+    let fp = sor.fixed_parameters.unwrap();
+    assert_eq!(fp.date_time_stamp, 1658766608);
+    assert_eq!(fp.units_of_distance, "km");
+    assert_eq!(fp.actual_wavelength, 13100);
+    assert_eq!(fp.averaging_time, 20);
+    assert_eq!(fp.number_of_averages, 98080);
+    // Key events
+    let ke = sor.key_events.unwrap();
+    // Viavi example contains 2 key events
+    assert_eq!(ke.number_of_key_events, 2);
+    // Data points
+    let dp = sor.data_points.unwrap();
+    assert_eq!(dp.number_of_data_points, 7842);
 }

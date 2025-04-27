@@ -33,3 +33,17 @@ bench = true
 [[bin]]
 name = "wotdrs"
 path = "src/wotdrs.rs"
+test = true
+doc = true
+bench = true
+
+[dev-dependencies]
+assert_cmd = "2.0"
+predicates = "2.0"
+tempfile = "3.3"
+criterion = "0.3"
+
+[[bench]]
+name = "wotdrs"
+path = "benches/wotdrs.rs"
+harness = false

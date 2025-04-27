@@ -66,10 +66,23 @@ Reconstruction d’un fichier SOR à partir d’un JSON généré par otdrs, ave
 
 ---
 
-## Fork et Crédit
+## Testing
 
-Ce projet est un **fork** du dépôt original [JamesHarrison/otdrs](https://github.com/JamesHarrison/otdrs) (GPL‑3.0).  
-Merci à James Harrison pour l’outil original et sa licence ouverte.
+Toutes les suites de tests, benchmarks et documentation incluent également le binaire `wotdrs`, notamment avec l’exemple Viavi SmartOTDR (test_parse_viavi_sor et bench_wotdrs_pipeline).
+
+---
+
+## Versions
+
+* 1.0.0 - refactored to avoid some beginner Rust errors; SORFile now owns its data. Updated dependencies.
+* 0.2.0 - added support for parsing Viavi SmartOTDR files
+* 0.1.0 - initial release
+
+---
+
+## Fork et remerciements
+
+Ce projet est un **fork** du dépôt original [JamesHarrison/otdrs](https://github.com/JamesHarrison/otdrs) (GPL‑3.0). Merci à James Harrison pour l’outil original et sa licence ouverte. Merci à toutes et tous pour votre soutien et vos contributions.
 
 ---
 
@@ -83,3 +96,13 @@ Vous êtes libre de copier, modifier, redistribuer et même commercialiser votre
 3. Fournir le code sous licence GPL‑3.0 à vos utilisateurs finaux  
 
 Voir le fichier `LICENSE` pour le texte intégral de la licence.
+
+## Écriture de fichiers SOR
+
+`otdrs` propose un support expérimental pour générer des fichiers SOR à partir de structures de données Rust. Le bloc map est entièrement recalculé lors de l’écriture : chaque BlockInfo reçoit un numéro de révision et un en‑tête, tandis que tailles et compteurs sont générés dynamiquement. Cela simplifie la sérialisation, car il est pratiquement impossible de calculer précisément les tailles à l’avance.
+
+Editors sont responsables de la cohérence des données modifiées ; par exemple, si vous changez le nombre de points dans un `DataPointsAtScaleFactor`, vous devez mettre à jour manuellement le champ `n_points`, car `otdrs` ne le fait pas pour vous.
+
+Actuellement, les landmarks et `LinkParameters` ne sont pas réécrits, faute de exemples de données.
+
+Note : le binaire `wotdrs` implémente le pipeline inverse (JSON→SOR), supprime les blocs propriétaires et reconstruit un `.sor` valide depuis un JSON généré par `otdrs`. Merci à toutes et tous pour vos retours et contributions !
