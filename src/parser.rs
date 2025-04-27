@@ -15,30 +15,22 @@ use nom::{
 };
 use std::str;
 
-/// Block header string for the map block
+// Définition des constantes pour les en-têtes des blocs
 pub const BLOCK_ID_MAP: &str = "Map";
-/// Block header string for the general parameters block
 pub const BLOCK_ID_GENPARAMS: &str = "GenParams";
-/// Block header string for the supplier parameters block
 pub const BLOCK_ID_SUPPARAMS: &str = "SupParams";
-/// Block header string for the fixed parameters block
 pub const BLOCK_ID_FXDPARAMS: &str = "FxdParams";
-/// Block header string for the key events block
 pub const BLOCK_ID_KEYEVENTS: &str = "KeyEvents";
-/// Block header string for the link parameters block
 pub const BLOCK_ID_LNKPARAMS: &str = "LnkParams";
-/// Block header string for the data points block
 pub const BLOCK_ID_DATAPTS: &str = "DataPts";
-/// Block header string for the checksum block
 pub const BLOCK_ID_CHECKSUM: &str = "Cksum";
 
-/// Parses to look for a block header, null-terminated, and returns the bytes 
-/// (sans null character)
+// Fonction pour analyser un en-tête de bloc, terminé par un caractère nul, et renvoyer les octets (sans caractère nul)
 fn block_header<'a>(i: &'a [u8], header: &str) -> IResult<&'a [u8], &'a [u8]> {
     terminated(tag(header), tag("\0"))(i)
 }
 
-/// Parse a block information sequence within the map block
+// Fonction pour analyser une séquence d'informations de bloc dans le bloc de la carte
 fn map_block_info(i: &[u8]) -> IResult<&[u8], BlockInfo> {
     let (i, header) = null_terminated_str(i)?;
     let (i, revision_number) = le_u16(i)?;
@@ -53,8 +45,7 @@ fn map_block_info(i: &[u8]) -> IResult<&[u8], BlockInfo> {
     ))
 }
 
-/// Parses the map block in a SOR file, which contains information about the 
-/// location of all blocks in the file
+// Fonction pour analyser le bloc de la carte dans un fichier SOR, qui contient des informations sur l'emplacement de tous les blocs dans le fichier
 pub fn map_block(i: &[u8]) -> IResult<&[u8], MapBlock> {
     let (i, _) = block_header(i, BLOCK_ID_MAP)?;
     let (i, revision_number) = le_u16(i)?;
@@ -438,6 +429,7 @@ pub fn parse_file<'a>(i: &'a[u8]) -> IResult<&'a[u8], SORFile> {
     let mut data_points: Option<DataPoints> = None;
     let mut proprietary_blocks: Vec<ProprietaryBlock> = Vec::new();
     
+
     let (_, map) = map_block(i)?;
     for block in &map.block_info {
         // Load the block's data
@@ -463,6 +455,9 @@ pub fn parse_file<'a>(i: &'a[u8]) -> IResult<&'a[u8], SORFile> {
             data_points = Some(ret);
         } else if block.identifier == BLOCK_ID_CHECKSUM {
             // TODO: Checksum checks should probably be handled elsewhere
+        } else if block.identifier == BLOCK_ID_KEYEVENTS {
+            let (_, ret) = key_events_block(data)?;
+            key_events = Some(ret);
         } else {
             // Handle proprietary blocks
             let (_, ret) = proprietary_block(data)?;

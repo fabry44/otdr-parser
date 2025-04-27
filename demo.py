@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 # CBOR version:
 # proc = subprocess.Popen(["otdrs", "--format", "cbor", "data/example1-noyes-ofl280.sor"], stdout=subprocess.PIPE)
 # JSON version:
-proc = subprocess.Popen(["otdrs", "data/example1-noyes-ofl280.sor"], stdout=subprocess.PIPE)
+proc = subprocess.Popen(["otdrs", "data/F1 TT07_FO_004_1310_OE.sor"], stdout=subprocess.PIPE)
 out = proc.communicate()[0]
 # Parse the data - we could load direct with pandas but want to be more prescriptive
 # CBOR version:
@@ -41,11 +41,15 @@ metres_to_launch_connector = (seconds_to_launch_connector  * speed_of_light_in_f
 
 # Let's print out our key events - helper function to avoid duplication for last_key_event...
 def print_key_event(ke, sf, sol, fpo):
-    loss = ke['event_loss']/sf
-    reflectance = ke['event_reflectance']/sf
+    loss = ke['event_loss']/1000
+    # reflectance = ke['event_reflectance']/sf
+    reflectance = ke['event_reflectance']/1000
     seconds_to_event = ke['event_propogation_time']/1e10
     metres_to_event = (seconds_to_event * sol) + fpo
-    print("Event {}: {}dB loss, {}dB reflectance, {}m".format(ke['event_number'], loss, reflectance, metres_to_event))
+    print("Valeur de 'event_loss' avant la division :", ke['event_loss'])
+    print("Valeur de 'sf' :", sf)
+    print("Valeur de 'event_reflectance' avant la division :", ke['event_reflectance'])
+    print("Event {}: sf, {}dB loss, {}dB reflectance, {}m".format(ke['event_number'], loss, reflectance, metres_to_event))
 
 # Now print the lot
 for ke in otdrs_out['key_events']['key_events']:

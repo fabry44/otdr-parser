@@ -29,3 +29,7 @@ path = "src/otdrs.rs"
 test = true
 doc = true
 bench = true
+
+[[bin]]
+name = "wotdrs"
+path = "src/wotdrs.rs"
